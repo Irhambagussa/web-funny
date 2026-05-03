@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Untuk Kamu</title>
+
+<style>
+body{
+    margin:0;
+    font-family: Georgia, serif;
+    background: radial-gradient(circle at center,#1a1a1a,#000);
+    color:#f5f5f5;
+    overflow:hidden;
+}
+
+/* GLOW */
+.glow{
+    position:fixed;
+    width:400px;height:400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08), transparent);
+    top:50%;left:50%;
+    transform:translate(-50%,-50%);
+    pointer-events:none;
+}
+
+/* STAR */
+.star{
+    position:fixed;
+    width:2px;height:2px;
+    background:white;
+    opacity:.5;
+    animation:twinkle 3s infinite alternate;
+}
+@keyframes twinkle{
+    from{opacity:.2;}to{opacity:.8;}
+}
+
+/* CONTAINER */
+.container{
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    text-align:center;
+    padding:20px;
+}
+
+/* TEXT */
+p{
+    max-width:500px;
+    min-height:80px;
+    line-height:1.8;
+    opacity:0;
+    transform:translateY(10px);
+    transition:1s;
+}
+.show{opacity:1;transform:translateY(0);}
+
+/* BUTTON */
+button{
+    margin-top:30px;
+    padding:10px 25px;
+    border:1px solid #aaa;
+    background:transparent;
+    color:white;
+    border-radius:20px;
+    cursor:pointer;
+}
+
+/* WHISPER NAMA */
+.whisper{
+    opacity:0;
+    letter-spacing:2px;
+    font-size:18px;
+    color:#ff7aa2;
+    animation:whisperIn 3s forwards;
+}
+@keyframes whisperIn{
+    0%{opacity:0;transform:translateY(10px);}
+    100%{opacity:1;transform:translateY(0);}
+}
+
+/* ENDING */
+.ending{
+    position:fixed;
+    top:0;left:0;
+    width:100%;height:100%;
+    background:black;
+    opacity:0;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    padding:20px;
+    transition:2s;
+    font-size:18px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="glow"></div>
+
+<div class="container">
+    <h1 id="judul">aku nggak tahu ini akan jadi apa</h1>
+    <p id="teks"></p>
+    <button id="btn">mulai</button>
+</div>
+
+<audio id="lagu">
+    <source src="lagu.mp3/lagu.mp3.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const nama = "Dinda Olivia Dinata"; // GANTI
+
+const teks = document.getElementById("teks");
+const judul = document.getElementById("judul");
+const btn = document.getElementById("btn");
+const lagu = document.getElementById("lagu");
+
+let step = 0;
+let volume = 0;
+
+/* ENDING BERBEDA */
+let visit = localStorage.getItem("visit") || 0;
+visit++;
+localStorage.setItem("visit", visit);
+
+/* BINTANG */
+for(let i=0;i<80;i++){
+    const s=document.createElement("div");
+    s.className="star";
+    s.style.top=Math.random()*100+"vh";
+    s.style.left=Math.random()*100+"vw";
+    document.body.appendChild(s);
+}
+
+/* TEXT */
+function showText(html){
+    teks.classList.remove("show");
+    setTimeout(()=>{
+        teks.innerHTML=html;
+        teks.classList.add("show");
+    },200);
+}
+
+/* MUSIC CONTROL (sinkron pelan) */
+function startMusic(){
+    lagu.volume=0;
+    lagu.play().catch(()=>{});
+}
+
+function boostMusic(target=0.6){
+    const fade=setInterval(()=>{
+        if(volume<target){
+            volume+=0.02;
+            lagu.volume=volume;
+        } else clearInterval(fade);
+    },200);
+}
+
+/* ENDING */
+function ending(){
+    const end=document.createElement("div");
+    end.className="ending";
+
+    if(visit==1){
+        end.innerHTML="kadang, yang sederhana... justru yang paling terasa.";
+    } 
+    else if(visit==2){
+        end.innerHTML="aneh ya... hal kecil bisa bikin kita kepikiran lama.";
+    }
+    else{
+        end.innerHTML="kalau ini terus kamu ulang... mungkin ada yang belum selesai 🙂";
+    }
+
+    document.body.appendChild(end);
+
+    setTimeout(()=>{end.style.opacity=1;},100);
+}
+
+/* CLICK */
+btn.addEventListener("click",()=>{
+
+    if(step===0) startMusic();
+
+    step++;
+
+    if(step===1){
+        btn.innerText="lanjut";
+        showText("tapi sejak kenal kamu, semuanya terasa beda.");
+    }
+
+    else if(step===2){
+        showText("aku jadi sering nunggu sesuatu yang sebelumnya nggak pernah aku tunggu.");
+        boostMusic(0.3);
+    }
+
+    else if(step===3){
+        showText("dan anehnya... aku tahu itu kamu.");
+    }
+
+    else if(step===4){
+        showText('<span class="whisper">'+nama+'</span>');
+        boostMusic(0.5);
+    }
+
+    else if(step===5){
+        showText("aku nggak mau buru-buru, aku cuma menikmati ini.");
+    }
+
+    else if(step===6){
+        judul.innerText="kalau kamu ngerasain hal yang sama...";
+        showText("mungkin kita nggak perlu banyak kata.");
+    }
+
+    else if(step===7){
+        judul.innerText="cukup saling ngerti aja.";
+        showText("dan lihat ini ke mana arah kita pergi.");
+
+        btn.innerText="ulang lagi";
+        btn.onclick=()=>location.reload();
+    }
+
+    else if(step===8){
+        ending();
+        btn.style.display="none";
+    }
+
+});
+</script>
+
+</body>
+</html>
